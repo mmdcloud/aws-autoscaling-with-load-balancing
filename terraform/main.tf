@@ -498,6 +498,8 @@ resource "aws_launch_template" "nodejs_template" {
 
   ebs_optimized = false
 
+  iam_instance_profile = "${aws_iam_instance_profile.iam_instance_profile.name}"
+
   instance_initiated_shutdown_behavior = "stop"
 
   network_interfaces {
