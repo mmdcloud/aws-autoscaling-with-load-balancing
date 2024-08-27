@@ -1,3 +1,41 @@
+# EC2 IAM Instance Profile
+data "aws_iam_policy_document" "instance_profile_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "instance_profile_iam_role" {
+  name               = "instance-profile-role"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.instance_profile_assume_role.json
+}
+
+data "aws_iam_policy_document" "instance_profile_policy_document" {
+  statement {
+    effect  = "Allow"
+    actions = ["s3:*"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "instance_profile_s3_policy" {
+  role   = aws_iam_role.instance_profile_iam_role.name
+  policy = data.aws_iam_policy_document.instance_profile_policy_document.json
+}
+
+resource "aws_iam_instance_profile" "iam_instance_profile" {
+  name = "iam-instance-profile"
+  role = aws_iam_role.instance_profile_iam_role.name
+}
+
 # CodeBuild Configuration
 resource "aws_s3_bucket" "codebuild_cache_bucket" {
   bucket = "theplayer007-codebuild-cache-bucket"
